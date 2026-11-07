@@ -1,0 +1,15 @@
+{
+  "name": "ravens-marketplace",
+  "description": "Ravens by Edda Labs: AI agents that act on Midnight for you, with every action approved in your own wallet.",
+  "owner": {
+    "name": "Edda Labs",
+    "url": "https://eddalabs.io"
+  },
+  "plugins": [
+    {
+      "name": "ravens",
+      "source": "./plugins/ravens",
+      "description": "Quote, prepare and track Midnight actions from Claude. You approve each one in the Ravens web app with your own wallet."
+    }
+  ]
+}
