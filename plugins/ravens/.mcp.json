@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "ravens": {
+      "type": "http",
+      "url": "${RAVENS_MCP_URL:-https://ravens.eddalabs.io/mcp}"
+    }
+  }
+}
