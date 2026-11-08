@@ -1,6 +1,11 @@
 # Ravens marketplace
 
-The Claude plugin marketplace for [Ravens](https://ravens.eddalabs.io) by Edda Labs.
+The Claude plugin marketplace and user docs for [Ravens](https://ravens.eddalabs.io) by Edda Labs.
+
+Ravens lets Claude act on Midnight for you without ever holding your keys:
+
+- **Ask about your wallet.** Claude asks narrow questions ("do I hold at least 2 NIGHT?") and gets only the answer. You choose how much an agent may learn.
+- **Prepare transactions.** Claude prepares an action and gives you an approval link. You check it and approve with your own wallet. Nothing is signed anywhere else.
 
 ## Install
 
@@ -13,41 +18,17 @@ In Claude Code:
 
 ## What's inside
 
-| Plugin | What it does |
+| Path | What |
 | --- | --- |
-| `ravens` | Connects Claude to the Ravens MCP server. Claude prepares Midnight actions and tracks them. You approve every action that moves funds in the Ravens web app with your own wallet. |
+| `plugins/ravens` | Connects Claude to the Ravens MCP server, with the `using-ravens` skill. |
+| [`docs/wallet-access.md`](docs/wallet-access.md) | How linking a wallet works, what agents can and can't learn, and the companion tab. |
+| [`docs/connecting-claude.md`](docs/connecting-claude.md) | Connecting claude.ai, Claude Desktop and Claude Code (HTTP or stdio). |
 
 Ravens never asks for your seed phrase or keys.
 
 ## Status
 
-Proof of concept. The hosted server at `https://ravens.eddalabs.io/mcp` is not live yet, so run the MCP server locally from the [ravens](https://github.com/eddalabs/ravens) repo (full guide: [docs/running-locally.md](https://github.com/eddalabs/ravens/blob/main/docs/running-locally.md)).
-
-Today it can prepare one action: an unshielded NIGHT transfer on a local standalone network (`main` branches) or Midnight Preview (`preview` branches).
-
-## Connect to a local server
-
-**Claude Code: plugin with the `using-ravens` skill**
-
-```
-RAVENS_MCP_URL=http://localhost:8787/mcp claude --plugin-dir ravens-marketplace/plugins/ravens
-```
-
-or without the plugin:
-
-```
-claude mcp add --transport http ravens http://localhost:8787/mcp
-```
-
-**Claude Desktop / claude.ai: custom connector**
-
-Connectors are called from Anthropic's cloud, so a local server needs a public URL:
-
-```
-cloudflared tunnel --config /dev/null --url http://localhost:8787
-```
-
-Then go to Settings → Connectors → Add custom connector and enter `https://<printed-host>.trycloudflare.com/mcp`. No auth is needed. The quick-tunnel URL changes on every restart, and anyone with it can reach your server, so stop it when you're done. `--config /dev/null` avoids picking up another tunnel's `~/.cloudflared/config.yml`, whose catch-all answers 404.
+Proof of concept. The hosted server at `https://ravens.eddalabs.io/mcp` is not live yet. Today Ravens runs locally against a standalone Midnight network: see [docs/connecting-claude.md](docs/connecting-claude.md).
 
 ## License
 
