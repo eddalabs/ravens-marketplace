@@ -9,7 +9,7 @@
     {
       "name": "ravens",
       "source": "./plugins/ravens",
-      "description": "Quote, prepare and track Midnight actions from Claude. You approve each one in the Ravens web app with your own wallet."
+      "description": "Ask privacy-preserving questions about your Midnight wallet and prepare actions from Claude. You approve every transaction in the Ravens web app with your own wallet."
     }
   ]
 }
