@@ -31,6 +31,22 @@ Requests are sealed so that only the user's own devices can read them. You get a
 
 You are not given the transaction hash, addresses or balances. The user sees the transaction on the approval page and in their wallet.
 
+## Asking a question
+
+`ask_wallet` answers two things, each with a yes or a no:
+
+- `token`: does the user hold any of this token? Use `"NIGHT"` or a token type (64 hex characters).
+- `contact`: is this name one of the user's contacts? Use it to check a name before preparing a transfer to it.
+
+Give exactly one of the two. There is nothing else to ask: no balance, no amount, no "at least". If the user asks how much they hold, say you can't see amounts and that their wallet shows it. Don't try to work out an amount from several questions.
+
+What comes back:
+
+- `answered`, with `answer` "Yes" or "No".
+- `waiting_for_device`: none of the user's devices answered. Give them the `link`; once Ravens is open and unlocked there it answers by itself. Then call `get_question` with the `id`.
+- `collected`: you already read this answer and Ravens has erased it. Ask again if you need it.
+- `setup_needed` or `no_wallet`: the user first creates their passkey, or connects a wallet, at the link in the result.
+
 ## Delegated agents
 
 If the user wants an agent to act for them without approving each step, send them to the Ravens web app (https://ravens.eddalabs.io) to create and fund a delegated agent. That setup happens in the app, not here.
