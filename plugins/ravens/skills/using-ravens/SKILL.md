@@ -17,9 +17,19 @@ Ravens lets the user act on Midnight from this conversation. You plan and prepar
 ## Typical flow
 
 1. `list_actions` to see what Ravens can do.
-2. Confirm the details with the user (for a transfer: recipient address and amount in NIGHT).
-3. Call the matching prepare tool (for example `prepare_transfer`) and share the `approval_url` it returns.
-4. When the user says they approved, call `get_request_status` and report the status and transaction hash.
+2. Confirm the details with the user (for a transfer: the recipient, as an address or the name of one of their contacts, and the amount in NIGHT).
+3. Call the matching prepare tool (for example `prepare_transfer`) and share the `approval_url` it returns. If it returns `setup_needed`, nothing was prepared: the user first creates their passkey in the Ravens app, at the link in the result. Then prepare it again.
+4. When the user says they approved, call `get_request_status` and report the status.
+
+## What you are told about a request
+
+Requests are sealed so that only the user's own devices can read them. You get a status and nothing else:
+
+- `needs_user`: it waits for the user. They may need to approve it, or to sort out something only they can see on the approval page (not enough funds, a contact name that doesn't match). You are not told which, so don't guess: send them to the approval page.
+- `pending`: approved and being sent.
+- `done`, `rejected`, `failed`, `expired`: final. After `failed` or `expired`, offer to prepare a new request.
+
+You are not given the transaction hash, addresses or balances. The user sees the transaction on the approval page and in their wallet.
 
 ## Delegated agents
 
