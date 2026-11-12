@@ -16,7 +16,7 @@ Ravens lets the user act on Midnight from this conversation. You plan and prepar
 
 ## Typical flow
 
-1. `list_actions` to see what Ravens can do: a fixed list of actions (today, transfers) and the two questions. Each action says what it needs. Use it when the user asks "what can I do?".
+1. `list_actions` to see what Ravens can do: a fixed list of actions (today, transfers and moves between the user's own two accounts) and the questions. Each action says what it needs. Use it when the user asks "what can I do?".
 2. Confirm the details with the user (for a transfer: the recipient, as an address or the name of one of their contacts, and the amount in NIGHT).
 3. Call the matching prepare tool (for example `prepare_transfer`) and share the `approval_url` it returns. If it returns `setup_needed`, nothing was prepared: the user first creates their passkey in the Ravens app, at the link in the result. Then prepare it again.
 4. When the user says they approved, call `get_request_status` and report the status.
@@ -38,6 +38,8 @@ You are not given the transaction hash, addresses or balances. The user sees the
 - `token`: does the user hold any of this token? Use `"NIGHT"` or a token type (64 hex characters).
 - `contact`: is this name one of the user's contacts? Use it to check a name before preparing a transfer to it.
 
+With `token` you can add `account` (`"wallet"` or `"allowance"`) to ask about one of the user's two accounts instead of both together.
+
 Give exactly one of the two. There is nothing else to ask: no balance, no amount, no "at least". If the user asks how much they hold, say you can't see amounts and that their wallet shows it. Don't try to work out an amount from several questions.
 
 What comes back:
@@ -50,6 +52,15 @@ What comes back:
 ## Who sends it, and who authorizes
 
 The user may have more than one thing that can carry out a request: the wallet they connected, and an agent account (a wallet inside Ravens that they fund). You don't choose between them and you are not told which was used. The user's own device matches what the action needs to what each one can do and holds, and the approval page tells the user who sends it and how they authorize: with their passkey when the agent account sends, in their wallet's own prompt otherwise. Don't ask the user which wallet to use, and don't guess which one sent.
+
+## The user's two accounts
+
+Every user has a wallet (the one they connected, where their funds come from) and can have an allowance under it: the agent account, which pays your requests with one passkey tap. You never see either address, and you never need one.
+
+- To move NIGHT between the two, call `prepare_move`, not `prepare_transfer`, and never ask for an address. `from: "allowance"` sends it back to their wallet (`amount_night: "all"` empties the allowance). `from: "wallet"` tops the allowance up, and needs an amount.
+- A move is sent by the account it leaves, so here the user does know which one. It is approved like a transfer.
+- `ask_wallet` with `token` is about both accounts together. Add `account` (`"wallet"` or `"allowance"`) to ask about one, for instance whether the allowance holds any NIGHT before offering to send it back. A user with no allowance is answered No for it.
+- `ask_wallet` with `token: "DUST"` and `account: "allowance"` asks whether the allowance can pay a fee. Use it when a request from the allowance keeps waiting. The wallet's DUST can't be asked.
 
 ## One action at a time
 
