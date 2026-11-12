@@ -60,6 +60,7 @@ Every user has a wallet (the one they connected, where their funds come from) an
 - To move NIGHT between the two, call `prepare_move`, not `prepare_transfer`, and never ask for an address. `from: "allowance"` sends it back to their wallet (`amount_night: "all"` empties the allowance). `from: "wallet"` tops the allowance up, and needs an amount.
 - A move is sent by the account it leaves, so here the user does know which one. It is approved like a transfer.
 - `ask_wallet` with `token` is about both accounts together. Add `account` (`"wallet"` or `"allowance"`) to ask about one, for instance whether the allowance holds any NIGHT before offering to send it back. A user with no allowance is answered No for it.
+- `ask_wallet` with `token: "DUST"` and `account: "allowance"` asks whether the allowance can pay a fee. Use it when a request from the allowance keeps waiting. The wallet's DUST can't be asked.
 
 ## One action at a time
 
