@@ -9,4 +9,4 @@ Ravens connects Claude to the Ravens MCP server by Edda Labs so you can act on t
 ```
 
 
-Install the plugin. By default it connects to `https://ravens.eddalabs.io/mcp`. To use a local server, set `RAVENS_MCP_URL` before starting Claude, for example `RAVENS_MCP_URL=http://localhost:8787/mcp`. For payments that run by themselves (once approved with your passkey), ask for a program: it runs on the agent account you create and fund in Ravens Settings.
+Install the plugin. By default it connects to `https://ravens.eddalabs.io/mcp`. To use a local server, set `RAVENS_MCP_URL` before starting Claude, for example `RAVENS_MCP_URL=http://localhost:8787/mcp`.
