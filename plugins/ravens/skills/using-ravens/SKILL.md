@@ -16,7 +16,7 @@ Ravens lets the user act on Midnight from this conversation. You plan and prepar
 
 ## Typical flow
 
-1. `list_actions` to see what Ravens can do.
+1. `list_actions` to see what Ravens can do (transfers, programs, questions).
 2. Confirm the details with the user (for a transfer: the recipient, as an address or the name of one of their contacts, and the amount in NIGHT).
 3. Call the matching prepare tool (for example `prepare_transfer`) and share the `approval_url` it returns. If it returns `setup_needed`, nothing was prepared: the user first creates their passkey in the Ravens app, at the link in the result. Then prepare it again.
 4. When the user says they approved, call `get_request_status` and report the status.
@@ -47,6 +47,20 @@ What comes back:
 - `collected`: you already read this answer and Ravens has erased it. Ask again if you need it.
 - `setup_needed` or `no_wallet`: the user first creates their passkey, or connects a wallet, at the link in the result.
 
-## Delegated agents
+## Programs: a payment that runs by itself
 
-If the user wants an agent to act for them without approving each step, send them to the Ravens web app (https://ravens.eddalabs.io) to create and fund a delegated agent. That setup happens in the app, not here.
+When the user wants something to happen later or repeatedly without approving each time ("send Ana 5 NIGHT every Friday", "pay rent on the 1st"), prepare a program with `prepare_program`. A program is one transfer, a schedule, optional conditions, and bounds on when it stops. The user reads it on the approval page and approves it once with their passkey. After that their agent account, a small separate account they fund and limit in Ravens Settings, makes each payment on its own.
+
+- `trigger`: `{ once: true }`, `{ every: "day" }`, `{ every: "week", on: "friday" }` or `{ every: "month", on: 1 }` (day 1 to 28). Schedules are in UTC.
+- `transfers`: who each run pays and how much, by `contact` name or `recipient` address, in NIGHT.
+- `conditions` (optional): `{ keeps: { atLeast: "100" } }` (the paying account must still hold that much NIGHT after paying), `{ recipients: "contacts" }`, `{ between: { from, to } }`. A run whose conditions don't hold is skipped.
+- `bounds`: `max_runs` (the most payments ever) and `until` (the last day, at most a year away). Both are required, so confirm them with the user.
+
+Give the user the `approval_url` and read them the `reads_as` sentences from the result, so they know what they will see. Then:
+
+- `get_program_status` returns `needs_user`, `active`, `paused` or `ended`, and nothing else. You are never told whether a run happened, paid or was skipped, or how much the account holds. Don't guess; the program's page in Ravens shows the user every run.
+- A program can't be edited. To change one, the user ends it on its page and you prepare a new one.
+- Only the user can approve, pause, resume or end a program, in Ravens.
+- A program needs an agent account that is funded and whose limits allow each payment. If the user has none, the approval page says so and Settings is where they create one. Programs run while Ravens is open in a browser where that account is.
+
+For a single payment now, use `prepare_transfer`, not a one-off program.
