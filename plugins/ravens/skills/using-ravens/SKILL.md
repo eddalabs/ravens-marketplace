@@ -45,9 +45,10 @@ Give exactly one of the two. There is nothing else to ask: no balance, no amount
 What comes back:
 
 - `answered`, with `answer` "Yes" or "No".
-- `waiting_for_device`: none of the user's devices answered. Give them the `link`; once Ravens is open and unlocked there it answers by itself. Then call `get_question` with the `id`.
-- `collected`: you already read this answer and Ravens has erased it. Ask again if you need it.
+- `not_available`: none of the user's devices answered. Ravens is closed or locked, or the account you asked about is not open anywhere. Give the user the `link`, and call `ask_wallet` again once they say Ravens is open.
 - `setup_needed` or `no_wallet`: the user first creates their passkey, or connects a wallet, at the link in the result.
+
+Answers are live. The call waits while the user's device works it out, which can take up to about 45 seconds for a wallet with many tokens, so let it finish. Nothing is stored afterwards: there is no answer to fetch later and nothing to poll. If you need the answer again, ask again.
 
 ## The user's two accounts, and which one pays
 
