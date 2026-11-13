@@ -1,7 +1,7 @@
 {
   "name": "ravens",
   "displayName": "Ravens",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Quote, prepare and track Midnight actions from Claude. You approve each one in the Ravens web app with your own wallet.",
   "author": { "name": "Edda Labs", "url": "https://eddalabs.io" },
   "homepage": "https://ravens.eddalabs.io",
