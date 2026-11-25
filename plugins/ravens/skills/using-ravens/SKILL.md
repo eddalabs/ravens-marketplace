@@ -18,8 +18,8 @@ Ravens lets the user act on Midnight from this conversation. You plan and prepar
 
 ## Typical flow
 
-1. `list_actions` shows what Ravens can do: a fixed list of actions (today, transfers and moves between the user's own two accounts). Each action says what it needs. Use it when the user asks "what can I do?", and answer in a sentence or two, in plain words.
-2. Confirm the details with the user. For a transfer: the recipient, as an address or the name of one of their contacts, the amount, and which of their two accounts pays, wallet or worker (see below).
+1. `list_actions` shows what Ravens can do: a fixed list of actions (today, transfers, and moves between the user's wallet and their worker). Each action says what it needs. Use it when the user asks "what can I do?", and answer in a sentence or two, in plain words.
+2. Confirm the details with the user. For a transfer: the recipient, as an address or the name of one of their contacts, and the amount. Don't ask which account pays (see below).
 3. Call the matching prepare tool: `prepare_transfer` for one recipient, `prepare_batch_transfer` for 2 to 25 recipients in one approval (payouts, refunds, splitting a bill), `prepare_move` between the user's own accounts. For any other action from the list, `describe_action` shows what it takes and `prepare` prepares it. Share the `approval_url` it returns.
 4. If it returns `setup_needed`, nothing was prepared: the user first creates their passkey in the Ravens app, at the link in the result. Then prepare it again.
 5. When the user says they approved, call `get_request_status` and report the status.
@@ -44,21 +44,17 @@ There is nothing to ask Ravens about the user. You cannot see or check a balance
 - Don't check before you prepare. Prepare the request the user asked for: whether they can afford it, and whether a name is one of their contacts, is found out on their device, where only they see the reason.
 - A request that can't go ahead stays at `needs_user`. Send the user to the approval page; don't guess why.
 
-## The user's two accounts, and which one pays
+## Workers: who carries a request out
 
-Every user has two accounts. Tell them apart by where the key lives:
+The user's own workers carry out what you prepare. A worker is an account of theirs that can pay: one inside Ravens, approved with a tap of their passkey, or their own wallet (Lace, 1AM), approved in the wallet's window. Which one acts is decided on the user's device. You don't choose it and you are never told.
 
-- **Wallet**: the user's own wallet, in Lace or 1AM. Its key is outside Ravens. The user approves in the wallet's own window, on a device where the wallet is installed.
-- **Worker**: a wallet inside Ravens that carries out what agents ask, with funds the user gave it. Its key is sealed in their Ravens vault. The user approves with one tap of their passkey, from any device, including a phone.
+- Prepare the request without naming a worker. Don't ask the user which account pays: that question is gone.
+- Only when the user names one themselves ("use Savings", "pay from my wallet") pass their words as `worker`, exactly as they said them. Their device works out which worker that is. You can't list workers or check a name.
+- A named worker is tried first. Pass `worker_mode: "only"` when the user said it must be that one and no other.
+- Once the user has named a worker for the conversation ("use my wallet for all of these"), keep passing it until they say otherwise.
+- You never see an address, how many workers there are, or what any of them holds, and you never need to.
 
-Every transfer names the account that pays: `from: "wallet"` or `from: "worker"`. That choice is the user's, never yours, and both are equal ways to use Ravens.
-
-- If the user has not said which account, ask before you prepare anything, and explain the difference in a sentence each, as above. Don't pick one for them, don't default to either, and don't guess from the amount.
-- Once the user has said which, that holds for the rest of the conversation unless they say otherwise. You don't need to ask again for every transaction.
-- Ravens never picks either. A transfer without `from` is refused with a reminder to ask.
-- You never see either address, which wallet it is, or what either holds, and you never need to.
-
-If the named account can't pay (not enough funds, no fee balance yet, the wallet is not on that device), only the user sees why, when they open the request. There they can try again, reject, or pay from the other account instead. You are not told which happened and you stay at `needs_user`: send them to the approval page, and don't prepare a second request for the same payment unless they ask.
+If the worker can't pay (not enough funds, no fee balance yet, a name that matches none of theirs), only the user sees why, when they open the request. There they can try again, reject, or choose another worker. You are not told which happened and you stay at `needs_user`: send them to the approval page, and don't prepare a second request for the same payment unless they ask.
 
 ## Moving funds between the two
 
@@ -69,7 +65,7 @@ If the named account can't pay (not enough funds, no fee balance yet, the wallet
 ## Retries and refusals
 
 - When a prepare call fails with a timeout or an error and you call it again, give both calls the same `idempotency_key` (a short name of your own for the request). The second call then returns the request already made instead of a second one. Use a new name for a new request.
-- A refusal carries a code beside its words: `account_not_named` (ask the user which account pays), `malformed` (the words say what to change), `unsupported_asset`, `too_many_outputs` (split the list), `unknown_action`, `not_found`, `unavailable` (try again in a moment). Decide by the code; tell the user the words.
+- A refusal carries a code beside its words: `account_not_named` (a move needs `from`: ask the user), `malformed` (the words say what to change), `unsupported_asset`, `too_many_outputs` (split the list), `unknown_action`, `not_found`, `unavailable` (try again in a moment). Decide by the code; tell the user the words.
 
 ## One action at a time
 
