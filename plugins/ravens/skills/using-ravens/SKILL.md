@@ -36,12 +36,13 @@ Requests are sealed so that only the user's own devices can read them. You get a
 
 You are not given the transaction hash, addresses or balances. The user sees the transaction on the approval page and in their wallet.
 
-## What you cannot ask
+## What you can and cannot ask
 
-There is nothing to ask Ravens about the user. You cannot see or check a balance, whether they hold a token, their contacts, their addresses, or which applications they use.
+There is one thing to ask Ravens about the user: whether a name they gave you is one of their contacts, or one of their workers (`check_name`: yes or no). You cannot list their contacts or workers, and you cannot see or check a balance, whether they hold a token, an address, or which applications they use.
 
 - If the user asks how much they hold, say you can't see amounts and that the Ravens app shows it.
-- Don't check before you prepare. Prepare the request the user asked for: whether they can afford it, and whether a name is one of their contacts, is found out on their device, where only they see the reason.
+- When the user names a contact or a worker, call `check_name` first. If the answer is no, say so and tell them to add it in Ravens (a contact needs an address, which only they can give there); prepare the request only if they still want it.
+- Don't check anything else before you prepare. Whether they can afford it is found out on their device, where only they see the reason.
 - A request that can't go ahead stays `open`. Send the user to the approval page; don't guess why.
 
 ## Workers: who carries a request out
